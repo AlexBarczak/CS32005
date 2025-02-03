@@ -1,0 +1,58 @@
+TASK 4: Define your target users
+
+The users of my app will likely be young adults and teenagers interested in a combination of board games and space fantasy and science fiction. 
+Their occupation and tech skill level is likely to vary very widely from people who have no understanding of how to work a computer to tech gurus, the goal is to make the app accessible to all of them.
+The pain points of the users are the issues we are trying to solve, make the game easy to join or leave and continue with no difficulty while making the user experience as seamless as possible.
+They would be expecting a fun experience, challenging them to think about the tactical nuance in the puzzle of what actions to take and which choices may be best.
+
+TASK 5: Create Two Personas
+
+Persona 1
+
+Name:			Paige
+Age:			23
+Occupation:		Student
+Background:		Enjoys playing board games, reading and socialising but has trouble finding time between lectures
+Goals:			Wants to be able to play longer and more complex games with friends
+Pain Points:		Has trouble with the length of setup and play time
+
+
+
+
+Persona 2
+
+Name:			Matthew
+Age:			19
+Occupation:		Retail
+Background:		Working in boring job but loving the company of others Matthew likes to join them when they play
+			Complex games but he sometimes has trouble following every game rule and running through long sequences
+Goals:			To have an easy time joining his friends in the game they choose to play
+Pain Points:		Needs the complexity of the game to be in the tactical area and not in the obeyance of basic rules and
+			Understanding how to play
+
+Task 6: Defining the Minimum Viable Product
+
+Core Features:
+
+	Space combat with varying ship types
+	
+	Resource management to build fleets
+	
+	Basic Grid map to define play area
+	
+	Single Player vs basic AI functionality
+
+	Victory condition through warfare domination
+
+	Save and Load Functionality
+
+
+Nice To Have:
+
+	Multiplayer functionality
+
+	Political Agendas creating game altering effects
+
+	Victory condition through secondary objective
+
+	Attractive user interface
