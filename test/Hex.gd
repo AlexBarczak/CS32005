@@ -5,6 +5,12 @@ var hex_directions # array of Hexes
 var layout_pointy # Orientation constant for pointy orientation
 var layout_flat # Orientation constant for flat orientation
 
+var used_layout : Layout;
+var hexes = {};
+
+@export var hex_origin: Vector2
+@export var hex_scale: Vector2 
+
 class FractionalHex:
 	var q: float
 	var r: float
@@ -15,7 +21,7 @@ class FractionalHex:
 		r = _r
 		s = _s
 
-class Hex extends RefCounted:
+class Hex:
 	var q: int
 	var r: int
 	var s: int
@@ -30,6 +36,24 @@ class Hex extends RefCounted:
 	
 	func valid() -> bool:
 		return (self.q + self.r + self.s) == 0
+
+func hex_round(h: FractionalHex) -> Hex:
+	var q: int = int(round(h.q))
+	var r: int = int(round(h.r))
+	var s: int = int(round(h.s))
+	
+	var q_diff: float = abs(q - h.q)
+	var r_diff: float = abs(r - h.r)
+	var s_diff: float = abs(s - h.s)
+	
+	if (q_diff > r_diff && q_diff > s_diff):
+		q = -r - s;
+	elif (r_diff > s_diff):
+		r = -q - s;
+	else:
+		s = -q - r
+	
+	return Hex.new(q, r, s)
 
 func hex_add(a: Hex, b: Hex) -> Hex:
 	return Hex.new(a.q + b.q, a.r + b.r, a.s + b.s)
@@ -51,6 +75,29 @@ func hex_direction(direction: int) -> Hex:
 
 func hex_neighbour(hex: Hex, direction: int):
 	return hex_add(hex, hex_direction(direction))
+
+func hex_linedraw(a: Hex, b: Hex):
+	var N: int = hex_distance(a, b);
+	var a_nudge = FractionalHex.new(a.q + 1e-6, a.r + 1e-6, a.s - 2e-6);
+	var b_nudge = FractionalHex.new(b.q + 1e-6, b.r + 1e-6, b.s - 2e-6);
+	var results = []
+	
+	var step: float = 1.0/ max(N,1);
+	for i in range(N+1):
+		results.append(hex_round(hex_lerp(a_nudge, b_nudge, step * i)))
+	
+	return results;
+
+# hash 32 bits from each of the q and r variables into the bits of an integer return value
+# s needs not be hashed since it is dependent on the other two variables anyways
+# breaks if coord value exceeds 2^31 in either direction
+func hash_hex(hex: Hex) -> int:
+	var rv : int = 0;
+	
+	rv = rv | (hex.q & 0xFFFFFFFF)
+	rv = (rv << 32) | (hex.r & 0xFFFFFFFF)
+	
+	return rv 
 
 class Orientation extends RefCounted:
 	var f0
@@ -79,6 +126,11 @@ class Orientation extends RefCounted:
 		self.b3 = _b3
 		
 		self.start_angle = _start_angle
+
+func hex_lerp(a: FractionalHex, b: FractionalHex, t: float) -> FractionalHex:
+	return FractionalHex.new(lerp(a.q, b.q, t),
+							lerp(a.r, b.r, t),
+							lerp(a.s, b.s, t))
 
 class Layout:
 	var orientation
@@ -119,8 +171,18 @@ func polygon_corners(layout: Layout, h: Hex):
 								center.y + offset.y))
 	return corners;
 
-var used_layout : Layout;
-var hexes = [];
+func generate_hexagonal_map(size: int):
+	size = max(size, 0);
+	
+	var map = {}
+	
+	for q in range(-size, size+1):
+		var r1: int = max(-size, -q - size);
+		var r2: int = min( size, -q + size);
+		for r in range(r1, r2+1):
+			var hex = Hex.new(q, r, -q-r)
+			map[hash_hex(hex)] = hex
+	return map
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -133,19 +195,83 @@ func _ready() -> void:
 										2.0 / 3.0, 0.0, -1.0 / 3.0, sqrt(3.0) / 3.0,
 										0.0)
 	
-	used_layout = Layout.new(layout_pointy, Vector2(30,30), Vector2(300, 300));
+	used_layout = Layout.new(layout_flat, hex_scale, hex_origin);
 	
 	
-	for q in range(-5, 5):
-		for r in range(-5, 5):
-			hexes.append(Hex.new(q, r, -q - r))
+	hexes = generate_hexagonal_map(3)
+
+var selectedHexes = [null, null]
+var highlightedhex : Hex
+
+var overUI = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	
+	var pos : Vector2 = get_global_mouse_position()
+	
+	var approximate :FractionalHex = pixel_to_hex(used_layout, pos)	
+	var exact: Hex = hex_round(approximate)
+	
+	var hashedValue = hash_hex(hex_round(pixel_to_hex(used_layout, pos)))
+	if hexes.has(hashedValue):
+		highlightedhex = hexes[hashedValue]
+	else:
+		highlightedhex = null
+	
+	if (Input.is_action_just_pressed("mouse_1") && !overUI):
+		hashedValue = hash_hex(hex_round(pixel_to_hex(used_layout, pos)))
+		if hexes.has(hashedValue):
+			# if selected 1 is null, set as selected 1
+			if (selectedHexes[0] == null):
+				selectedHexes[0] = hashedValue
+			# elif equal to selected 1, deselect both
+			elif (selectedHexes[0] == hashedValue):
+				selectedHexes[0] = null
+				selectedHexes[1] = null
+			# elif selected 2 is null, set as selected 2
+			elif (selectedHexes[1] == null):
+				selectedHexes[1] = hashedValue
+			# elif equal to selected 2, deselect selected 2
+			elif (selectedHexes[1] == hashedValue):
+				selectedHexes[1] = null
+	
 	queue_redraw()
-	pass
 
 func _draw():
-	for hex in hexes:
-		var corners = PackedVector2Array(polygon_corners(used_layout, hex))
+	var corners
+	for hex in hexes.values():
+		corners = PackedVector2Array(polygon_corners(used_layout, hex))
 		draw_polyline(corners, Color(1,1,1))
+	
+	if (selectedHexes.size() == 1):
+		pass
+	elif (selectedHexes.size() == 2):
+		pass
+	
+	if (highlightedhex != null):
+		corners = PackedVector2Array(polygon_corners(used_layout, highlightedhex))
+		draw_polyline(corners, Color(1,0,0))
+	
+	if (selectedHexes[0] != null):
+		corners = PackedVector2Array(polygon_corners(used_layout, hexes[selectedHexes[0]]))
+		draw_polyline(corners, Color(1,1,0))
+		
+		if (selectedHexes[1] != null):
+			corners = PackedVector2Array(polygon_corners(used_layout, hexes[selectedHexes[1]]))
+			draw_polyline(corners, Color(0,1,1))
+			
+			draw_line(hex_to_pixel(used_layout, hexes[selectedHexes[0]]), hex_to_pixel(used_layout, hexes[selectedHexes[1]]), Color(1,1,1))
+			
+			var lineOfHexes = hex_linedraw(hexes[selectedHexes[0]], hexes[selectedHexes[1]])
+			
+			for hex in lineOfHexes:
+				draw_circle(hex_to_pixel(used_layout, hex), 4.0, Color(1,1,1))
+
+func _mouse_enter_ui():
+	overUI = true
+	pass # Replace with function body.
+
+func _mouse_exit_ui():
+	overUI = false
+	pass # Replace with function body.

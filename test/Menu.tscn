@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://cfvx02jwacue"]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.5
+offset_top = -81.5
+offset_right = 69.5
+offset_bottom = 81.5
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="RichTextLabel" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Dawning Republic"
+fit_content = true
+autowrap_mode = 0
+
+[node name="b_NewGame" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "New Game"
+
+[node name="b_LoadGame" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Load Game"
+
+[node name="b_Settings" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+
+[node name="b_Exit" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Exit"

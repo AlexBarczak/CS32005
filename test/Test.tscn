@@ -1,6 +1,41 @@
-[gd_scene load_steps=2 format=3 uid="uid://bmxtkio0nup3p"]
+[gd_scene load_steps=3 format=3 uid="uid://bmxtkio0nup3p"]
 
+[ext_resource type="Script" path="res://Test.gd" id="1_1e563"]
 [ext_resource type="Script" path="res://Hex.gd" id="1_mrtei"]
 
-[node name="Node2D" type="Node2D"]
+[node name="Game" type="Node2D"]
+
+[node name="Node2D" type="Node2D" parent="."]
 script = ExtResource("1_mrtei")
+hex_origin = Vector2(0, 300)
+hex_scale = Vector2(50, 50)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("1_1e563")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Camera2D"]
+offset_left = -538.0
+offset_top = 102.0
+offset_right = -458.0
+offset_bottom = 186.0
+
+[node name="Button2" type="Button" parent="Camera2D/VBoxContainer" groups=["ui_elements"]]
+custom_minimum_size = Vector2(160, 80)
+layout_mode = 2
+text = "Move"
+
+[node name="Button" type="Button" parent="Camera2D/VBoxContainer" groups=["ui_elements"]]
+custom_minimum_size = Vector2(160, 80)
+layout_mode = 2
+text = "Fire"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Camera2D"]
+offset_left = 317.0
+offset_top = -310.0
+offset_right = 563.0
+offset_bottom = 310.0
+
+[connection signal="mouse_entered" from="Camera2D/VBoxContainer/Button2" to="Node2D" method="_mouse_enter_ui"]
+[connection signal="mouse_exited" from="Camera2D/VBoxContainer/Button2" to="Node2D" method="_mouse_exit_ui"]
+[connection signal="mouse_entered" from="Camera2D/VBoxContainer/Button" to="Node2D" method="_mouse_enter_ui"]
+[connection signal="mouse_exited" from="Camera2D/VBoxContainer/Button" to="Node2D" method="_mouse_exit_ui"]
