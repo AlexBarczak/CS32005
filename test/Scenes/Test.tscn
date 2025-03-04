@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bmxtkio0nup3p"]
 
-[ext_resource type="Script" path="res://Test.gd" id="1_1e563"]
-[ext_resource type="Script" path="res://Hex.gd" id="1_mrtei"]
+[ext_resource type="Script" path="res://Scripts/Test.gd" id="1_1e563"]
+[ext_resource type="Script" path="res://Scripts/Hex.gd" id="1_mrtei"]
 
 [node name="Game" type="Node2D"]
 

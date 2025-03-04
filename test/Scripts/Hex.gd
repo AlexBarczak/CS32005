@@ -15,7 +15,7 @@ class FractionalHex:
 	var q: float
 	var r: float
 	var s: float
-	
+
 	func _init(_q: float, _r: float, _s: float) -> void:
 		q = _q
 		r = _r
@@ -78,13 +78,14 @@ func hex_neighbour(hex: Hex, direction: int):
 
 func hex_linedraw(a: Hex, b: Hex):
 	var N: int = hex_distance(a, b);
-	var a_nudge = FractionalHex.new(a.q + 1e-6, a.r + 1e-6, a.s - 2e-6);
-	var b_nudge = FractionalHex.new(b.q + 1e-6, b.r + 1e-6, b.s - 2e-6);
+	var a_nudge = FractionalHex.new(a.q, a.r, a.s);
+	var b_nudge = FractionalHex.new(b.q, b.r, b.s);
 	var results = []
 	
 	var step: float = 1.0/ max(N,1);
 	for i in range(N+1):
 		results.append(hex_round(hex_lerp(a_nudge, b_nudge, step * i)))
+		draw_circle(fractional_hex_to_pixel(used_layout, hex_lerp(a_nudge, b_nudge, step * i)), 4.0, Color(1,0,0))
 	
 	return results;
 
@@ -148,6 +149,12 @@ func hex_to_pixel(layout: Layout, h: Hex) -> Vector2:
 	var y = (M.f2 * h.q + M.f3 * h.r) * layout.size.y
 	return Vector2(x + layout.origin.x, y + layout.origin.y)
 
+func fractional_hex_to_pixel(layout: Layout, h: FractionalHex) -> Vector2:
+	var M = layout.orientation
+	var x = (M.f0 * h.q + M.f1 * h.r) * layout.size.x
+	var y = (M.f2 * h.q + M.f3 * h.r) * layout.size.y
+	return Vector2(x + layout.origin.x, y + layout.origin.y)
+
 func pixel_to_hex(layout: Layout, p : Vector2):
 	var M = layout.orientation
 	var pt = Vector2((p.x - layout.origin.x) / layout.size.x, 
@@ -198,7 +205,7 @@ func _ready() -> void:
 	used_layout = Layout.new(layout_flat, hex_scale, hex_origin);
 	
 	
-	hexes = generate_hexagonal_map(3)
+	hexes = generate_hexagonal_map(8)
 
 var selectedHexes = [null, null]
 var highlightedhex : Hex

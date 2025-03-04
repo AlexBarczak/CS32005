@@ -1,8 +1,11 @@
-VBoxContainer
-HBoxContainer
 Button
-RichTextLabel
+VBoxContainer
+TextureRect
+Label
+HBoxContainer
+CheckBox
 MarginContainer
+RichTextLabel
 BoxContainer
 Container
 Control
